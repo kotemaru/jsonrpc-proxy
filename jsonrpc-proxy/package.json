@@ -1,0 +1,24 @@
+{
+  "name": "jsonrpc-proxy",
+  "version": "0.1.0",
+  "description": "jsonrpc-proxy",
+  "main": "hello-world-server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified! Configure in package.json\" && exit 1"
+  },
+  "repository": "",
+  "keywords": [
+    "Node.js",
+    "Eclipse",
+    "Nodeclipse"
+  ],
+  "author": "",
+  "license": "APL/2.0",
+  "readmeFilename": "README.md",
+  "dependencies": {
+	  "minimatch":"*",
+	  "glob":"5.0.15",
+	  "mime":"*",
+	  "date-utils":"*"
+  }
+}
