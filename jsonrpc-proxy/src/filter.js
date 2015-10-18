@@ -111,7 +111,7 @@ function log(rpcReq, rpcRes) {
 		sLogFile.write(" <a href='filter/" + sLogCount + "_req.json'>REQ</a>");
 		sLogFile.write(" <a href='filter/" + sLogCount + "_res.json'>RES</a>");
 
-		var dirName = DocRoot.getLocalPath("filter/");
+		var dirName = DocRoot.getLocalPath("logs/filter/");
 		try {
 			FS.mkdirSync(dirName);
 		} catch (err) {
