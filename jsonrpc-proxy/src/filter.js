@@ -4,6 +4,7 @@ var Glob = require('glob');
 var Path = require('path');
 var FS = require('fs');
 var DateUtils = require('date-utils');
+var DocRoot = require('./docroot');
 
 var sLogFile = FS.createWriteStream(__dirname + "/../docroot/logs/filter.html");
 var sLogCount = 0;
@@ -14,9 +15,17 @@ function requestListener(req, res) {
 	console.log(TAG, req.url);
 
 	var path = req.params.path || req.parsedUrl.pathname;
-	var reset = req.params.reset;
+	var isReset = req.params.reset;
+	var isLoad = req.params.load;
 
-	if (reset) sApis = {};
+	if (isReset) {
+		sApis = {};
+		res.end();
+		return;
+	}
+	if (!isLoad) {
+		return DocRoot.requestListener(req, res);
+	}
 
 	load(__dirname + "/../docroot" + path, function(result) {
 		var buff = new Buffer(JSON.stringify(result));

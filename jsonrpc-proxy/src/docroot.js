@@ -47,9 +47,12 @@ function listingHtml(path, title) {
 		var name = list[i];
 		var stat = fileStat(path + "/" + name);
 		if (stat && stat.isDirectory()) {
-			name = name + "/";
+			html += "\n<li><a href='" + name + "/'>" + name + "/</a>";
+		} else if (name.match(/[.]js$/)) {
+			html += "\n<li><a href='" + name + "'>" + name + "</a>  &nbsp;&nbsp;&nbsp;=> <a href='" + name + "?load=on'>Filter</a>";
+		} else {
+			html += "\n<li><a href='" + name + "'>" + name + "</a>";
 		}
-		html += "\n<li><a href='" + name + "'>" + name + "</a>";
 	}
 	html += "\n</ul></body></html>";
 	return html;

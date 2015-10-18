@@ -11,7 +11,7 @@ var DocRoot = require('./src/docroot');
 var PORT = 8080;
 
 
-Router.on('GET', null, '/filter/@@@', Filter.requestListener);
+Router.on('GET', null, '/filter', Filter.requestListener);
 Router.on('GET', null, '/filter/**/*.js', Filter.requestListener);
 Router.on('GET', null, '/**', DocRoot.requestListener);
 Router.on('POST', '*', '/vapi/request', JsonRpc.createListener(Filter.jsonRpcListener));
