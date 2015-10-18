@@ -26,16 +26,18 @@ docroot/filter の配下に JS ファイルを置いて関数を定義します�
 
   * docroot/filter/test/test.js
 
-	exports.newsList = {
-		onRequest: function(request) {
-			request.param.hoge = "test request data";
-		},
-		onResponse : function(response) {
-			if (response.result) {
-				response.result.hoge = "test response data";
+
+		exports.newsList = {
+			onRequest: function(request) {
+				request.param.hoge = "test request data";
+			},
+			onResponse : function(response) {
+				if (response.result) {
+					response.result.hoge = "test response data";
+				}
 			}
-		}
-	};
+		};
+
 
   * onRequest にリクエストパラメータの差し替え関数を設定します。
     * ターゲットサーバにリクエストを転送する前に呼ばれます。
