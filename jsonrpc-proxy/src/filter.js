@@ -6,7 +6,7 @@ var FS = require('fs');
 var DateUtils = require('date-utils');
 var DocRoot = require('./docroot');
 
-var sLogFile = FS.createWriteStream(__dirname + "/../docroot/logs/filter.html");
+var sLogFile = FS.createWriteStream(DocRoot.getLocalPath("logs/filter.html"));
 var sLogCount = 0;
 
 var sApis = {};
@@ -27,7 +27,7 @@ function requestListener(req, res) {
 		return DocRoot.requestListener(req, res);
 	}
 
-	load(__dirname + "/../docroot" + path, function(result) {
+	load(DocRoot.getLocalPath(path), function(result) {
 		var buff = new Buffer(JSON.stringify(result));
 		res.setHeader("content-length", buff.length);
 		res.write(buff);
@@ -111,7 +111,7 @@ function log(rpcReq, rpcRes) {
 		sLogFile.write(" <a href='filter/" + sLogCount + "_req.json'>REQ</a>");
 		sLogFile.write(" <a href='filter/" + sLogCount + "_res.json'>RES</a>");
 
-		var dirName = __dirname + "/../docroot/logs/filter/";
+		var dirName = DocRoot.getLocalPath("filter/");
 		try {
 			FS.mkdirSync(dirName);
 		} catch (err) {

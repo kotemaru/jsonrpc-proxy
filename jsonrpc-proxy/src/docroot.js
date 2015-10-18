@@ -4,9 +4,11 @@ var Http = require('http');
 var FS = require('fs');
 var Mime = require('mime');
 
+var BASE_DIR = __dirname + "/../docroot/";
+
 function requestListener(req, res) {
 	console.log(TAG, req.url);
-	var path = __dirname + "/../docroot" + req.parsedUrl.pathname;
+	var path = getLocalPath(req.parsedUrl.pathname);
 	try {
 		var stat = fileStat(path);
 		if (stat != null && stat.isDirectory()) {
@@ -75,4 +77,10 @@ function fileStat(path) {
 	return FS.statSync(path);
 }
 
+function getLocalPath(path) {
+	return BASE_DIR + path;
+}
+
+
 exports.requestListener = requestListener;
+exports.getLocalPath = getLocalPath;
