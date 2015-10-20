@@ -129,6 +129,61 @@ function log(rpcReq, rpcRes) {
 	}
 }
 
+/**
+ * データ更新ハンドラ。
+ * <li>クエリ：無し
+ * <li>urlのパスのファイルをリクエストボディで置き換える。
+ * <li>Content-type: text/* 以外では動作しない。
+ * <li>text/javascript の場合は構文チェックを行う。
+ */
+exports.put = function(req, res) {
+	var path = DocRoot.getLocalPath(req.parsedUrl.pathname);
+	var ctype = req.headers['content-type'];
+	console.log(TAG, "PUT", path, ctype);
+
+	var body = "";
+
+	req.on('data', function(chunk) {
+		body += chunk;
+	});
+	req.on('end', function() {
+		if (body == "") {
+			console.error(TAG, "Not found body. Content-type:" + ctype);
+			res.statusCode = 400;
+			res.write("Not found body. Content-type:" + ctype);
+			res.end();
+			return;
+		}
+
+		if (ctype.lastIndexOf("text/javascript", 0) != -1) {
+			try {
+				eval("(function(){" + body + "})()");
+			} catch (err) {
+				console.error(TAG, err.message);
+				res.statusCode = 400;
+				res.write(err.message);
+				res.end();
+				return;
+			}
+		}
+		try {
+			FS.mkdirSync(Path.dirname(path));
+		} catch (e) {
+			// ignore.
+		}
+		FS.writeFile(path, body, null, function(err) {
+			if (err) {
+				console.error(TAG, err.message);
+				res.statusCode = 500;
+				res.write(err.message);
+			} else {
+				res.end();
+			}
+		});
+	});
+
+}
+
 exports.load = load
 exports.requestListener = requestListener;
 exports.jsonRpcListener = {

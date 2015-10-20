@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>Border layout frame</title>
+
+<link rel="stylesheet" href="/css/BorderLayout.css" />
+
+<style>
+* {
+	font: bold large sans-serif;
+}
+
+#editor {
+	width: 100%;
+	height: 100%;
+}
+
+#borderLayoutLeft {
+	display: none;
+}
+
+.Btn {
+	font-size: 10px;
+	display: inline-block;
+	align: center;
+}
+
+.Btn:hover {
+	background: #f0f0f0;
+}
+</style>
+
+<script src="/js/jquery-1.8.2.js"></script>
+
+
+<script>
+	$(function() {
+		$("#borderLayoutLeft").css("width", "0px");
+		$("#borderLayoutRight").css("width", "0px");
+		$("#borderLayoutMain").css({
+			"padding-left" : "0px",
+			"padding-right" : "0px"
+		});
+
+		var path = location.search.substr(1);
+
+		$.ajax({
+			type : "GET",
+			dataType : "text",
+			url : path,
+			success : function(text) {
+				$("#editor").val(text);
+			}
+		});
+	});
+
+	function onSave() {
+		var path = location.search.substr(1);
+		$.ajax({
+			type : "PUT",
+			contentType : "text/plain",
+			data : $("#editor").val(),
+			url : path,
+			error : function(xhr, status, err) {
+				alert(xhr.responseText);
+			}
+		});
+		$.ajax({
+			type : "GET",
+			dataType : "json",
+			data : $("#editor").val(),
+			url : path + "?load=on",
+			success : function(json) {
+				if (json.error) {
+					alert(json.error);
+				}
+			},
+			error : function(xhr, status, err) {
+				alert(xhr.responseText);
+			}
+		});
+	}
+</script>
+
+</head>
+<body>
+	<div id="borderLayoutMain" class="BorderLayoutFrame">
+		<textarea id="editor"></textarea>
+	</div>
+
+	<div id="borderLayoutLeft" class="BorderLayoutFrame"></div>
+
+	<div id="borderLayoutRight" class="BorderLayoutFrame"></div>
+
+	<div id="borderLayoutHeader" class="BorderLayoutFrame">
+		<a href="javascript:onSave()"><img src="/img/Save.png"
+			width="48px" /><br>Save</a>
+	</div>
+
+	<div id="borderLayoutFooter" class="BorderLayoutFrame"></div>
+</body>
+</html>

@@ -13,6 +13,7 @@ var PORT = 8080;
 
 Router.on('GET', null, '/filter', Filter.requestListener);
 Router.on('GET', null, '/filter/**/*.js', Filter.requestListener);
+Router.on('PUT', null, '/filter/**/*.js', Filter.put);
 Router.on('GET', null, '/**', DocRoot.requestListener);
 Router.on('POST', '*', '/vapi/request', JsonRpc.createListener(Filter.jsonRpcListener));
 Router.setDefaultListener(Proxy.requestListener);
