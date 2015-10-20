@@ -42,16 +42,16 @@ function requestListener(req, res) {
 	}
 }
 
-function listingHtml(path, title) {
+function listingHtml(path, pathname) {
 	var list = FS.readdirSync(path);
-	var html = "<html><body><h2>" + title + "</h2><ul>";
+	var html = "<html><body><h2>" + pathname + "</h2><ul>";
 	for (var i = 0; i < list.length; i++) {
 		var name = list[i];
 		var stat = fileStat(path + "/" + name);
 		if (stat && stat.isDirectory()) {
 			html += "\n<li><a href='" + name + "/'>" + name + "/</a>";
 		} else if (name.match(/[.]js$/)) {
-			html += "\n<li><a href='" + name + "'>" + name + "</a>  &nbsp;&nbsp;&nbsp;=> <a href='" + name + "?load=on'>Filter</a>";
+			html += "\n<li><a href='/edit.html?" + pathname+name + "'>" + name + "</a>";
 		} else {
 			html += "\n<li><a href='" + name + "'>" + name + "</a>";
 		}
