@@ -11,7 +11,7 @@
 
 <style>
 * {
-	font: bold large sans-serif;
+	font: fixed;
 }
 
 #editor {
@@ -84,12 +84,48 @@
 			}
 		});
 	}
+	
+	
+function insertTab(o, e){
+    var kC = e.keyCode ? e.keyCode : e.charCode ? e.charCode : e.which;
+    if (kC == 9 && !e.shiftKey && !e.ctrlKey && !e.altKey)
+    {
+        var oS = o.scrollTop; // Set the current scroll position.
+        if (o.setSelectionRange)
+        {
+            // For: Opera + FireFox + Safari
+            var sS = o.selectionStart;
+            var sE = o.selectionEnd;
+            o.value = o.value.substring(0, sS) + "\t" + o.value.substr(sE);
+            o.setSelectionRange(sS + 1, sS + 1);
+            o.focus();
+        }
+        else if (o.createTextRange)
+        {
+            // For: MSIE
+            document.selection.createRange().text = "\t"; // String.fromCharCode(9)
+            //o.onblur = function() { o.focus(); o.onblur = null; };
+            e.returnValue = false;
+        }
+        else
+        {
+            alert('Please contact the admin and tell xe that the tab functionality does not work in your browser.');
+        }
+        o.scrollTop = oS; // Return to the original scroll position.
+        if (e.preventDefault) // DOM
+        {
+            e.preventDefault();
+        }
+        return false; // Not needed, but good practice.
+    }
+    return true;
+}
 </script>
 
 </head>
 <body>
 	<div id="borderLayoutMain" class="BorderLayoutFrame">
-		<textarea id="editor"></textarea>
+		<textarea id="editor" onkeydown="insertTab(this, event);" spellcheck='false'></textarea>
 	</div>
 
 	<div id="borderLayoutLeft" class="BorderLayoutFrame"></div>

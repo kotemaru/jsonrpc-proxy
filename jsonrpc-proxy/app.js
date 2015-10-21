@@ -1,15 +1,16 @@
 var TAG = "app:"
 var Http = require('http');
 var Url = require('url');
+var QueryString = require('querystring');
 
 var Router = require('./src/router');
 var Proxy = require('./src/proxy')
 var JsonRpc = require('./src/jsonrpc');
 var Filter = require('./src/filter');
 var DocRoot = require('./src/docroot');
+var WebSocket = require('./src/websocket');
 
 var PORT = 8080;
-
 
 Router.on('GET', null, '/filter', Filter.requestListener);
 Router.on('GET', null, '/filter/**/*.js', Filter.requestListener);
@@ -22,4 +23,5 @@ var server = Http.createServer();
 server.on('request', Router.requestListener);
 server.on('connect', Proxy.connectListener);
 server.listen(PORT);
+WebSocket.listen(server);
 console.log("listen porxy", PORT);

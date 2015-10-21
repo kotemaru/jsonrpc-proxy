@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>Border layout frame</title>
+
+<link rel="stylesheet" href="/css/BorderLayout.css" />
+
+<script src="/js/jquery-1.8.2.js"></script>
+<script src="/js/socket.io.js"></script>
+
+
+<script>
+	var socket = io.connect('http://localhost:8080/?channel=filter.log');
+	socket.on('connect', function(msg) {
+		console.log("connet");
+		document.getElementById("connectId").innerHTML = "あなたの接続ID::" + socket.id;
+	});
+
+	socket.on('filter.apply', function(msg) {
+		console.log("message");
+		document.getElementById("receiveMsg").innerHTML = JSON.stringify(msg);
+	});
+
+	function SendMsg() {
+		var msg = document.getElementById("message").value;
+		socket.emit('message', {
+			value : msg
+		});
+	}
+	function DisConnect() {
+		var msg = socket.id + "は切断しました。";
+		socket.emit('message', {
+			value : msg
+		});
+		socket.disconnect();
+	}
+</script>
+
+</head>
+<body>
+	<h1>socket.ioのサンプルプログラム</h1>
+	<div id="connectId"></div>
+	<div id="type"></div>
+	<br>
+	<input type="text" id="message" value="">
+	<input type="button" value="メッセージを送る" onclick="SendMsg()">
+	<input type="button" value="切断する" onclick="DisConnect()">
+	<div id="receiveMsg"></div>
+</body>
+</html>

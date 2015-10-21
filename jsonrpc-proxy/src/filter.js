@@ -5,6 +5,7 @@ var Path = require('path');
 var FS = require('fs');
 var DateUtils = require('date-utils');
 var DocRoot = require('./docroot');
+var WebSocket = require('./websocket');
 
 var sLogFile = FS.createWriteStream(DocRoot.getLocalPath("logs/filter.html"));
 var sLogCount = 0;
@@ -13,6 +14,7 @@ var sApis = {};
 
 function requestListener(req, res) {
 	console.log(TAG, req.url);
+	console.log(TAG, "sSocket", sSocket);
 
 	var path = req.params.path || req.parsedUrl.pathname;
 	var isReset = req.params.reset;
@@ -124,6 +126,14 @@ function log(rpcReq, rpcRes) {
 		out.write(rpcResStr);
 		out.close();
 
+		WebSocket.send('filter.apply', {
+			id : sLogCount,
+			datetime : date.toFormat("YYYY/MM/DD HH24:MI:SS"),
+			method : rpcReq.method,
+			request : "/logs/filter/" + sLogCount + "_req.json",
+			response : "/logs/filter/" + sLogCount + "_res.json"
+		});
+
 	} catch (err) {
 		console.error(TAG, "log", err);
 	}
@@ -190,3 +200,4 @@ exports.jsonRpcListener = {
 	onRequest : onRpcRequest,
 	onResponse : onRpcResponse
 };
+exports.setWebSocket = setWebSocket;

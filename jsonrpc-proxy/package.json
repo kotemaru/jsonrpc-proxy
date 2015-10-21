@@ -19,6 +19,7 @@
 	  "minimatch":"*",
 	  "glob":"5.0.15",
 	  "mime":"*",
-	  "date-utils":"*"
+	  "date-utils":"*",
+	  "socket.io":"*"
   }
 }
