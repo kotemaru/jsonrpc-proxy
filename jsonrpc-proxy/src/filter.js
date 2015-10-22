@@ -14,7 +14,6 @@ var sApis = {};
 
 function requestListener(req, res) {
 	console.log(TAG, req.url);
-	console.log(TAG, "sSocket", sSocket);
 
 	var path = req.params.path || req.parsedUrl.pathname;
 	var isReset = req.params.reset;
@@ -200,4 +199,3 @@ exports.jsonRpcListener = {
 	onRequest : onRpcRequest,
 	onResponse : onRpcResponse
 };
-exports.setWebSocket = setWebSocket;

@@ -17,12 +17,15 @@
 	var socket = io.connect('http://localhost:8080/?channel=filter.log');
 	socket.on('connect', function(msg) {
 		console.log("connet");
-		document.getElementById("connectId").innerHTML = "あなたの接続ID::" + socket.id;
+		$("#connect").show();
 	});
-
+	socket.on('disconnect', function(msg) {
+		console.log("disconnet");
+		$("#connect").hide();
+	});
 	socket.on('filter.apply', function(msg) {
 		console.log("message");
-		document.getElementById("receiveMsg").innerHTML = JSON.stringify(msg);
+		$("#logs").append($("<div>"+msg.id+":"+msg.method+"</div>"));
 	});
 
 	function SendMsg() {
@@ -42,13 +45,10 @@
 
 </head>
 <body>
-	<h1>socket.ioのサンプルプログラム</h1>
-	<div id="connectId"></div>
-	<div id="type"></div>
-	<br>
-	<input type="text" id="message" value="">
-	<input type="button" value="メッセージを送る" onclick="SendMsg()">
-	<input type="button" value="切断する" onclick="DisConnect()">
-	<div id="receiveMsg"></div>
+	<h1>Logger</h1>
+	<div id="connect">Connect</div>
+	<div id="logs">
+		
+	</div>
 </body>
 </html>
