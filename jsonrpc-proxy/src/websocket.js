@@ -15,7 +15,13 @@ exports.listen = function(server) {
 		console.log(TAG, "connect events=", events);
 		//sSockets.push(sock);
 		//exports.send("filter.apply", {id:0, method:"connect"});
-
+		exports.send('filter.apply', {
+			id : 0,
+			datetime : "YYYY/MM/DD HH24:MI:SS",
+			method : "dummy",
+			request : "/logs/filter/1_req.json",
+			response : "/logs/filter/1_res.json"
+		});
 		sock.on('disconnect', function() {
 			console.log(TAG, "disconnect");
 			//sSocket.delete(sock);
