@@ -6,22 +6,28 @@
 
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <title>Logger</title>
-
+<link rel="shortcut icon" href="/img/Log.png">
 <link rel="stylesheet" href="/css/BorderLayout.css" />
+<link rel="stylesheet" href="/css/Dialog.css" />
 
 <script src="/js/jquery-1.8.2.js"></script>
 <script src="/js/socket.io.js"></script>
+<script src="js/BorderLayout.js"></script>
+<script src="js/Dialog.js"></script>
 
 <style>
 * {
 	box-sizing: border-box;
 }
 
-#borderLayoutHeader {
+.BorderLayoutHeader {
 	border: 2px solid #888888;
 	overflow-y: scroll;
+	background: #8888888;
 }
+
 #logs {
+
 }
 
 #logs div {
@@ -34,31 +40,85 @@
 	background: #f0f0f0;
 }
 
+.LogItem {
+	border-bottom: 1px solid #888888;
+}
+
+.LogItem>span {
+	display: inline-block;
+	border-right: 1px solid #aaaaaa;
+	padding-right: 6px;
+}
+
+.LogItem>#id {
+	width: 50px;
+	text-align: right;
+}
+
+.LogItem>#method {
+	width: 200px;
+}
+
+.LogItem>#message {
+	color: red;
+	white-space: nowrap;
+}
+
 iframe {
 	width: 50%;
 	height: 100%;
 	float: left;
 }
+
+#disconnected {
+	position: absolute;
+	background-color: rgba(255, 255, 255, 0.8);
+	width: 100%;
+	height: 100%;
+	width: 100%;
+}
+
+#disconnected>div {
+	position: absolute;
+	top: 40%;
+	left: 40%;
+	width: 200px;
+	height: 220px;
+	font-size: 32px;
+}
+
+#dialogBody {
+	width: 800px;
+	height: 500px;
+}
+
 </style>
 
 <script>
 	var socket = io.connect('http://localhost:8080/?channel=filter.log');
 	socket.on('connect', function(msg) {
 		console.log("connet");
-		$("#connect").show();
+		$("#logs").html("");
+		$("#disconnected").hide();
 	});
 	socket.on('disconnect', function(msg) {
 		console.log("disconnet");
-		$("#connect").hide();
+		$("#disconnected").show();
 	});
 	socket.on('filter.apply', function(msg) {
 		console.log("message");
-		var $item = $("<div onClick='selectLog(this)'>" + msg.datetime + " :" + msg.id + ":" + msg.method + "</div>");
+		var $item = $("#logItemTemplate").clone();
+		$item.children("#datetime").text(msg.datetime);
+		$item.children("#id").text(msg.id);
+		$item.children("#method").text(msg.method);
+		if (msg.error) {
+			$item.children("#message").text(msg.error.message);
+		}
+
 		$item.data("log", msg);
 		$("#logs").append($item);
-		$("#borderLayoutHeader").scrollTop( $("#logs").height() - $("#borderLayoutHeader").height() );
+		$(".BorderLayoutHeader").scrollTop($("#logs").height() - $("#borderLayoutHeader").height());
 	});
-
 	function SendMsg() {
 		var msg = document.getElementById("message").value;
 		socket.emit('message', {
@@ -79,51 +139,59 @@ iframe {
 		$("#request").attr("src", log.request);
 		$("#response").attr("src", log.response);
 	}
+	function onClickError(elem) {
+		var $item = $(elem).parent();
+		var log = $item.data("log");
+		$("#errorDetailDialog #dialogBody>pre").text(log.error.stack);
+		Dialog.open("#errorDetailDialog");
+	}
 
 	$(function() {
-		var headerHeight = "150px";
-		$("#borderLayoutHeader").css("height", headerHeight);
-		$("#borderLayoutLeft").css("width", "0px");
-		$("#borderLayoutRight").css("width", "0px");
-		$("#borderLayoutMain").css({
-			"padding-top" : headerHeight,
-			"padding-left" : "0px",
-			"padding-right" : "0px"
-		});
-
-		var path = location.search.substr(1);
-
-		$.ajax({
-			type : "GET",
-			dataType : "text",
-			url : path,
-			success : function(text) {
-				$("#editor").val(text);
-			}
-		});
+		BorderLayout.setHeaderHeight(150);
+		BorderLayout.setLeftWidth(0);
+		BorderLayout.setRightWidth(0);
 	});
 </script>
 
 </head>
 <body>
-	<div id="header"></div>
-	<div id="main"></div>
+	<!-- ========= Main Panel =========================================== -->
+	<section class="BorderLayoutMain"> <iframe id="request"></iframe> <iframe id="response"></iframe> </section>
 
-	<div id="borderLayoutMain" class="BorderLayoutFrame">
-		<iframe id="request"></iframe>
-		<iframe id="response"></iframe>
+	<!-- ========= Header Panel =========================================== -->
+	<header class="BorderLayoutHeader">
+	<div id="logs"></div>
+	</header>
+
+
+	<div id="disconnected">
+		<div>
+			<img src="/img/Disconnected.png" width="200px" /><br> Disconnected
+		</div>
 	</div>
-
-	<div id="borderLayoutLeft" class="BorderLayoutFrame"></div>
-
-	<div id="borderLayoutRight" class="BorderLayoutFrame"></div>
-
-	<div id="borderLayoutHeader" class="BorderLayoutFrame">
-		<div id="logs">
-
+	<!-- ======================= Dialog =============================== -->
+	<div id="dialogPanel" class="DialogPanel">
+		<div class="DialogMask"></div>
+		<!-- Include -->
+		<div id="errorDetailDialog" class="Dialog">
+			<h3>
+				<img class="CloseImg" src="img/batu-red.png" onclick="Dialog.close()" />
+				<nobr>Error detail</nobr>
+			</h3>
+			<div id="dialogBody">
+			<pre></pre>
+			</div>
 		</div>
 	</div>
 
-	<div id="borderLayoutFooter" class="BorderLayoutFrame"></div>
+	<!-- ================ Template =================================== -->
+	<div class="Template">
+		<div id="logItemTemplate" class="LogItem" onClick='selectLog(this)'>
+			<span id="id"></span> <span id="datetime"></span> <span id="method"></span>
+			<span id="message" onClick="onClickError(this);"></span>
+		</div>
+	</div>
+
+
 </body>
 </html>

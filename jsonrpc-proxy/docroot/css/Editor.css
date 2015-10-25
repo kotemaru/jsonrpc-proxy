@@ -1,0 +1,81 @@
+#editor {
+	width: 100%;
+	height: 100%;
+	font: fixed;
+	font-size: 16px;
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+}
+
+#fileTree {
+	box-sizing: border-box;
+	padding: 0 4px;
+	height: 80%;
+	width: 100%;
+	overflow-x: auto;
+	overflow-y: auto;
+	font-size: 14px;
+	line-height: 100%;
+	border: 1px solid #888888;
+}
+
+#fileTree  ul {
+	margin: 0;
+	padding: 0;
+	margin-left: 20px;
+}
+
+#fileTree>ul {
+	margin: 0;
+}
+
+#fileTree li {
+	margin: 4px 0;
+	padding: 0;
+	list-style-type: none;
+	white-space: nowrap;
+	cursor: default;
+}
+
+.FileTreeFileItem:hover {
+	background: white;
+}
+
+#fileTree li>span {
+	margin-left: 4px;
+	vertical-align: middle;
+}
+#fileTree li>img {
+	width: 16px;
+	height: 16px;
+		vertical-align: bottom;
+
+}
+
+
+#filterStatus {
+	box-sizing: border-box;
+	padding: 0 4px;
+	height: 20%;
+	width: 100%;
+	overflow-x: auto;
+	overflow-y: auto;
+	font-size: 14px;
+	line-height: 100%;
+	border: 1px solid #888888;
+}
+#filterStatus > h4{
+	margin: 0 0 4px 0;
+	padding: 0;
+	border-bottom: 1px solid #888888;
+}
+#filterList {
+	margin: 0 0.5em;
+}
+
+
+#filterList > div  {
+	padding-left: 0.5em;
+	border-bottom: 1px solid #dddddd;
+}

@@ -11,6 +11,7 @@ var sLogFile = FS.createWriteStream(DocRoot.getLocalPath("logs/filter.html"));
 var sLogCount = 0;
 
 var sApis = {};
+var sLogs = [];
 
 function requestListener(req, res) {
 	console.log(TAG, req.url);
@@ -18,6 +19,10 @@ function requestListener(req, res) {
 	var path = req.params.path || req.parsedUrl.pathname;
 	var isReset = req.params.reset;
 	var isLoad = req.params.load;
+	var isStatus = req.params.status;
+	if (isStatus) {
+		return statusListener(req, res);
+	}
 
 	if (isReset) {
 		sApis = {};
@@ -34,6 +39,22 @@ function requestListener(req, res) {
 		res.write(buff);
 		res.end();
 	});
+}
+
+function statusListener(req, res) {
+	console.log(TAG, req.url);
+	var names = {};
+	for ( var name in sApis) {
+		names[name] = {
+			onRequest : sApis[name].onRequest ? true : false,
+			onResponse : sApis[name].onResponse ? true : false
+		};
+	}
+
+	var buff = new Buffer(JSON.stringify(names));
+	res.setHeader("content-length", buff.length);
+	res.write(buff);
+	res.end();
 }
 
 function load(path, callback) {
@@ -71,10 +92,14 @@ function onRpcRequest(req, res, opts) {
 	var rpcReqs = Array.isArray(req.body) ? req.body : [ req.body ];
 	for (var i = 0; i < rpcReqs.length; i++) {
 		var rpcReq = rpcReqs[i];
-		var api = sApis[rpcReq.method];
-		if (api && api.onRequest) {
-			var _this = {};
-			api.onRequest.call(_this, rpcReq);
+		try {
+			var api = sApis[rpcReq.method];
+			if (api && api.onRequest) {
+				var _this = {};
+				api.onRequest.call(_this, rpcReq);
+			}
+		} catch (err) {
+			log(rpcReq, null, err);
 		}
 	}
 }
@@ -86,20 +111,24 @@ function onRpcResponse(req, res, opts) {
 	for (var i = 0; i < rpcReqs.length; i++) {
 		var rpcReq = rpcReqs[i];
 		var rpcRes = rpcRess[i];
-		var api = sApis[rpcReq.method];
-		if (api && api.onResponse) {
-			var _this = {};
-			api.onResponse.call(_this, rpcRes);
-			log(rpcReq, rpcRes);
-		} else {
-			console.log(TAG, "JSONRPC through", "\n  >>", JSON.stringify(rpcReq), "\n  <<", JSON.stringify(rpcRes));
+		try {
+			var api = sApis[rpcReq.method];
+			if (api && api.onResponse) {
+				var _this = {};
+				api.onResponse.call(_this, rpcRes);
+				log(rpcReq, rpcRes);
+			} else {
+				console.log(TAG, "JSONRPC through", "\n  >>", JSON.stringify(rpcReq), "\n  <<", JSON.stringify(rpcRes));
+			}
+		} catch (err) {
+			log(rpcReq, rpcRes, err);
 		}
 	}
 };
 
-function log(rpcReq, rpcRes) {
+function log(rpcReq, rpcRes, err) {
 	var rpcReqStr = JSON.stringify(rpcReq);
-	var rpcResStr = JSON.stringify(rpcRes);
+	var rpcResStr = (rpcRes == null) ? "No response" : JSON.stringify(rpcRes);
 	console.log(TAG, "JSONRPC filtered", "\n==>>", rpcReqStr, "\n<<==", rpcResStr);
 	try {
 		sLogCount++;
@@ -125,18 +154,34 @@ function log(rpcReq, rpcRes) {
 		out.write(rpcResStr);
 		out.close();
 
-		WebSocket.send('filter.apply', {
+		var logMsg = {
 			id : sLogCount,
 			datetime : date.toFormat("YYYY/MM/DD HH24:MI:SS"),
 			method : rpcReq.method,
 			request : "/logs/filter/" + sLogCount + "_req.json",
 			response : "/logs/filter/" + sLogCount + "_res.json"
-		});
+		};
+		if (err) {
+			logMsg.error = {
+				message : err.message,
+				stack : err.stack
+			};
+		}
+		sLogs.push(logMsg);
+		WebSocket.send('filter.apply', logMsg);
 
 	} catch (err) {
 		console.error(TAG, "log", err);
 	}
 }
+
+function sendPastLogs() {
+	for (var i=0;i<sLogs.length;i++) {
+		WebSocket.send('filter.apply', sLogs[i]);
+	}
+}
+
+
 
 /**
  * データ更新ハンドラ。
@@ -199,3 +244,4 @@ exports.jsonRpcListener = {
 	onRequest : onRpcRequest,
 	onResponse : onRpcResponse
 };
+exports.sendPastLogs = sendPastLogs;

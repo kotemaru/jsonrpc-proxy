@@ -1,0 +1,60 @@
+#taskBoard {
+	height: 100%;
+	width: 100%;
+	overflow: auto;
+	position: relative;
+}
+
+#taskBoardTable {
+	border-spacing: 0px;
+}
+
+#taskBoardTable th, #taskBoardTable td {
+	min-width: 200px;
+	border: 1px #888888 solid;
+	vertical-align: top;
+	background: url(../img/bg-1.png) repeat;
+}
+
+#taskBoardTable th>span {
+	display: inline-block;
+	width: 200px;
+	text-align: center;
+}
+
+.Kanban {
+	box-sizing: border-box;
+	width: 200px;
+	height: 60px;
+	padding: 0px;
+	overflow: hidden;
+	border-left: 1px solid #e0e0e0;
+	border-top: 1px solid #e0e0e0;
+	border-right: 1px solid #a0a0a0;
+	border-bottom: 1px solid #a0a0a0;
+	margin: 2px;
+	padding: 1px;
+	border-bottom-right-radius: 5px;
+	box-shadow: 1px 1px 1px #e0e0e0;
+	background: url(../img/corner.png) no-repeat;
+	background-position: right bottom;
+	background-color: white;
+	user-select: none;
+	line-height:110%;
+}
+
+.Kanban #ticketId {
+	display: inline-block;
+	width: 32px;
+}
+
+.Kanban #title {
+	user-select: none;
+	margin-top: 3px;
+	word-wrap: break-word;
+	text-overflow: ellipsis;
+}
+
+.KanbanDummy {
+	display: none;
+}

@@ -1,7 +1,9 @@
 exports.newsList = {
 	onRequest: function(request) {
+
 	},
 	onResponse : function(response) {
+response.xxx.xxx = 1;
 		if (response.result) {
 			response.result.newsArticleList = [ {
 				newsArticleId : 10005,

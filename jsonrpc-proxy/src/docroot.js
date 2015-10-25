@@ -3,6 +3,7 @@ var TAG = "DocRoot:"
 var Http = require('http');
 var FS = require('fs');
 var Mime = require('mime');
+var Glob = require('glob');
 
 var BASE_DIR = __dirname + "/../docroot/";
 
@@ -36,7 +37,7 @@ function requestListener(req, res) {
 		src.on('error', function(err) {
 			onError(err, req, res);
 		});
-		res.setHeader('Content-type', Mime.lookup(path)+";charset=utf-8");
+		res.setHeader('Content-type', Mime.lookup(path) + ";charset=utf-8");
 	} catch (err) {
 		onError(err, req, res);
 	}
@@ -51,7 +52,7 @@ function listingHtml(path, pathname) {
 		if (stat && stat.isDirectory()) {
 			html += "\n<li><a href='" + name + "/'>" + name + "/</a>";
 		} else if (name.match(/[.]js$/)) {
-			html += "\n<li><a href='/edit.html?" + pathname+name + "'>" + name + "</a>";
+			html += "\n<li><a href='/edit.html?" + pathname + name + "'>" + name + "</a>";
 		} else {
 			html += "\n<li><a href='" + name + "'>" + name + "</a>";
 		}
@@ -81,6 +82,39 @@ function getLocalPath(path) {
 	return BASE_DIR + path;
 }
 
+function treeListener(req, res) {
+	var path = req.params.path || "";
+
+	var tree = getTree(getLocalPath(path), path);
+	var buff = new Buffer(JSON.stringify(tree));
+	res.setHeader('Content-type', 'application/json');
+	res.setHeader("content-length", buff.length);
+	res.write(buff);
+	res.end();
+}
+function getTree(dir, path) {
+	console.log(TAG, "getTree", dir);
+	var result = [];
+	var list = FS.readdirSync(dir);
+	for (var i = 0; i < list.length; i++) {
+		var name = list[i];
+		var stat = fileStat(dir + "/" + name);
+		if (stat && stat.isDirectory()) {
+			result.push({
+				name : name,
+				absPath : path + "/" + name,
+				children : getTree(dir + "/" + name, path + "/" + name)
+			});
+		} else {
+			result.push({
+				name : name,
+				absPath : path + "/" + name
+			});
+		}
+	}
+	return result;
+}
 
 exports.requestListener = requestListener;
+exports.treeListener = treeListener;
 exports.getLocalPath = getLocalPath;

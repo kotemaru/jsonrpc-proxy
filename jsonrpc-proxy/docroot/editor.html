@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<link rel="shortcut icon" href="/img/Edit.png">
+<title>Editor</title>
+
+<link rel="stylesheet" href="css/BorderLayout.css" />
+<link rel="stylesheet" href="css/ExTable.css" />
+
+<link rel="stylesheet" href="css/Font.css" />
+<link rel="stylesheet" href="css/MyMine.css" />
+<link rel="stylesheet" href="css/Editor.css" />
+<link rel="stylesheet" href="css/Dialog.css" />
+<link rel="stylesheet" href="css/Control.css" />
+<link rel="stylesheet" href="css/PopupMenu.css" />
+<link rel="stylesheet" href="css/ZIndex.css" />
+
+<script src="js/jquery-1.8.2.js"></script>
+
+
+<script src="js/Dialog.js"></script>
+<script src="js/Storage.js"></script>
+<script src="js/PopupMenu.js"></script>
+<script src="js/CheckButton.js"></script>
+<script src="js/PulldownButton.js"></script>
+<script src="js/Balloon.js"></script>
+
+<script src="js/BorderLayout.js"></script>
+<script src="js/Common.js"></script>
+<script src="js/Editor.js"></script>
+<script src="js/FileTree.js"></script>
+<script src="js/FilterStatus.js"></script>
+
+<script>
+	$(function() {
+		var $dialogPanel = $("#dialogPanel");
+		//include($dialogPanel, "parts/AbortDialog.html");
+		//include($dialogPanel, "parts/AddFolderDialog.html");
+		//include($dialogPanel, "parts/EditFolderDialog.html");
+		//include($dialogPanel, "parts/ConfigDialog.html");
+		//include($dialogPanel, "parts/DownloadDialog.html");
+		//include($dialogPanel, "parts/UploadDialog.html");
+	});
+
+	function include($parent, url) {
+		$.ajax({
+			url : url,
+			async : false,
+			success : function(html) {
+				$parent.append($(html));
+			}
+		});
+	}
+
+	$(function() {
+		BorderLayout.init({
+			header : {
+				size : 60,
+				resizable : false
+			},
+			left : {
+				size : 200,
+				resizable : true
+			}
+		}).load().refresh();
+
+		FileTree.refresh("/filter", {isFirst:true});
+		Editor.load();
+		FilterStatus.refresh();
+	});
+</script>
+</head>
+<body>
+	<!-- ========= Main Panel =========================================== -->
+	<section class="BorderLayoutMain">
+		<textarea id="editor" onkeydown="Editor.insertTab(this, event);" spellcheck='false'></textarea>
+	</section>
+
+	<!-- ========= Left Side Panel =========================================== -->
+	<section class="BorderLayoutLeft">
+		<div id="fileTree"></div>
+		<div id="filterStatus">
+			<h4>
+				現在有効なフィルタ一覧 <img class="Button" width="22px" src="/img/clean.png" onclick="FilterStatus.clean()" alt="フィルターを無効化" />
+			</h4>
+			<div id="filterList"></div>
+		</div>
+		<span class="BorderLayoutHandle"></span>
+	</section>
+
+	<!-- ========= Right Side Panel
+	<section class="BorderLayoutRight">
+		<span class="BorderLayoutHandle"  ></span>
+	</section>
+	-->
+
+	<!-- ========= Header Panel =========================================== -->
+	<header class="BorderLayoutHeader">
+		<div>
+			<img class="Button" src="/img/save.png" onclick="Editor.save()" alt="保存して適用" />
+			<input id="currentPath" size="50" />
+		</div>
+
+
+
+	</header>
+
+	<!-- ========= Footer Panel
+	<footer class="BorderLayoutFooter" >
+		<span class="BorderLayoutHandle"  ></span>
+	</footer>
+	-->
+
+	<!-- ======================= Dialog =============================== -->
+	<div id="dialogPanel" class="DialogPanel">
+		<div class="DialogMask"></div>
+		<!-- Include -->
+	</div>
+
+	<!-- ======================= Popup menu =============================== -->
+
+	<div id="iconSelectMenu" class="PopupMenu"></div>
+
+
+	<!-- ======================= Waiting =============================== -->
+	<div id="waiting">
+		<img src="img/waiting.gif" />
+		<div id="progressBar">
+			<div></div>
+		</div>
+	</div>
+	<!-- ======================= Balloon =============================== -->
+	<div id="balloon"></div>
+
+	<!-- ================ Template =================================== -->
+	<div class="Template">
+
+	</div>
+
+
+</body>
+</html>

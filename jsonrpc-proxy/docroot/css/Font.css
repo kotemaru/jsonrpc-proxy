@@ -1,0 +1,11 @@
+@font-face {
+	font-family: 'mplus-2m';
+	//src: url('../font/mplus-2m-regular.woff') format('woff');
+	font-weight: normal;
+}
+
+@font-face {
+	font-family: 'mplus-2m';
+	//src: url('../font/mplus-2m-bold.woff') format('woff');
+	font-weight: bold;
+}
