@@ -230,6 +230,7 @@ exports.put = function(req, res) {
 				console.error(TAG, err.message);
 				res.statusCode = 500;
 				res.write(err.message);
+				res.end();
 			} else {
 				res.end();
 			}

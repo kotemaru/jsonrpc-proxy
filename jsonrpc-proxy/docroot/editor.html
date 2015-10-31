@@ -70,12 +70,21 @@
 		Editor.load();
 		FilterStatus.refresh();
 	});
+
+
+	function onSyntaxError(err) {
+		console.log(err.message,err.line,err.column);
+		Editor.setError(err);
+	}
 </script>
 </head>
 <body>
 	<!-- ========= Main Panel =========================================== -->
 	<section class="BorderLayoutMain">
-		<textarea id="editor" onkeydown="Editor.insertTab(this, event);" spellcheck='false'></textarea>
+	<div id="editorParent">
+		<pre id="editorBg"></pre>
+		<textarea id="editor" wrap="off" onkeydown="Editor.insertTab(this, event);" spellcheck='false'></textarea>
+	</div>
 	</section>
 
 	<!-- ========= Left Side Panel =========================================== -->
@@ -101,6 +110,8 @@
 		<div>
 			<img class="Button" src="/img/save.png" onclick="Editor.save()" alt="保存して適用" />
 			<input id="currentPath" size="50" />
+			<br>
+			<div id="errorMessage"></div>
 		</div>
 
 
@@ -136,7 +147,7 @@
 
 	<!-- ================ Template =================================== -->
 	<div class="Template">
-
+		<iframe id="tester"></iframe>
 	</div>
 
 
