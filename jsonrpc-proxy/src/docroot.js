@@ -1,13 +1,29 @@
+/**
+ * 静的コンテンツを応答する。
+ * <li>通常のWebサーバの動作をするモジュール。
+ * <li>ルートは "docroot"
+ */
+
 var TAG = "DocRoot:"
 
 var Http = require('http');
 var FS = require('fs');
 var Mime = require('mime');
 var Glob = require('glob');
+var Done = require('./done');
 
 var BASE_DIR = __dirname + "/../docroot/";
 
-function requestListener(req, res) {
+/**
+ * HTTPリスナ：ローカルファイルをそのまま応答する。
+ * <li>フォルダは"index.html"を応答する。
+ * <li>index.html がなければファイル一覧を応答する。
+ *
+ * @param req
+ * @param res
+ * @returns
+ */
+function doGet(req, res) {
 	console.log(TAG, req.url);
 	var path = getLocalPath(req.parsedUrl.pathname);
 	try {
@@ -15,21 +31,13 @@ function requestListener(req, res) {
 		if (stat != null && stat.isDirectory()) {
 			var stat = fileStat(path + "/index.html");
 			if (stat == null) {
-				res.setHeader('Content-type', 'text/html');
-				res.write(listingHtml(path, req.parsedUrl.pathname));
-				res.end();
-				return;
+				return Done.html(res, dirHtml(path, req.parsedUrl.pathname));
 			}
 			path += "/index.html";
 		}
 
 		if (stat == null || !stat.isFile()) {
-			console.warn(TAG, "Not found", path);
-			res.statusCode = 404;
-			res.setHeader('Content-type', 'text/plain');
-			res.write("404 Not found.");
-			res.end();
-			return;
+			return Done.error(res, 404, "404 Not found.");
 		}
 
 		var src = FS.createReadStream(path);
@@ -39,20 +47,27 @@ function requestListener(req, res) {
 		});
 		res.setHeader('Content-type', Mime.lookup(path) + ";charset=utf-8");
 	} catch (err) {
-		onError(err, req, res);
+		return Done.error(res, 500, "500 Server error. \n" + err.toString());
 	}
 }
 
-function listingHtml(path, pathname) {
-	var list = FS.readdirSync(path);
+/**
+ * フォルダ配下のファイル一覧をHTMLで返す。
+ *
+ * @param path 物理パス
+ * @param pathname 論理パス
+ * @returns {String} HTML
+ */
+function dirHtml(localPath, pathname) {
+	var list = FS.readdirSync(localPath);
 	var html = "<html><body><h2>" + pathname + "</h2><ul>";
 	for (var i = 0; i < list.length; i++) {
 		var name = list[i];
-		var stat = fileStat(path + "/" + name);
+		var stat = fileStat(localPath + "/" + name);
 		if (stat && stat.isDirectory()) {
 			html += "\n<li><a href='" + name + "/'>" + name + "/</a>";
 		} else if (name.match(/[.]js$/)) {
-			html += "\n<li><a href='/edit.html?" + pathname + name + "'>" + name + "</a>";
+			html += "\n<li><a href='" + name + "'>" + name + "</a>";
 		} else {
 			html += "\n<li><a href='" + name + "'>" + name + "</a>";
 		}
@@ -61,37 +76,37 @@ function listingHtml(path, pathname) {
 	return html;
 }
 
-function onError(err, req, res) {
-	console.error(TAG, err.toString());
-	try {
-		res.statusCode = 500;
-		res.setHeader('Content-type', 'text/plain');
-		res.write("500 Server error. \n" + err.toString());
-		res.end();
-	} catch (e) {
-		console.error(TAG, "Ignore error on error", e.toString());
-	}
-}
-
 function fileStat(path) {
 	if (!FS.existsSync(path)) return null;
 	return FS.statSync(path);
 }
 
+/**
+ * 論理パスを物理パスに変換する。
+ *
+ * @param path
+ * @returns {String}
+ */
 function getLocalPath(path) {
 	return BASE_DIR + path;
 }
 
-function treeListener(req, res) {
+/**
+ * HTTPリスナ：ローカルファイルのフォルダツリーをJSONで応答する。
+ * <li>リクエストパスはフォルダの必要がある。
+ * <li>応答フォーマットは
+ *
+ * <xmp> [ {name:"ファイル名", absPath:"フルパス", children[サブフォルダ...]},... ] </xmp>
+ *
+ * @param req
+ * @param res
+ */
+function doGetTree(req, res) {
 	var path = req.params.path || "";
-
 	var tree = getTree(getLocalPath(path), path);
-	var buff = new Buffer(JSON.stringify(tree));
-	res.setHeader('Content-type', 'application/json');
-	res.setHeader("content-length", buff.length);
-	res.write(buff);
-	res.end();
+	Done.json(res, tree);
 }
+
 function getTree(dir, path) {
 	console.log(TAG, "getTree", dir);
 	var result = [];
@@ -115,6 +130,6 @@ function getTree(dir, path) {
 	return result;
 }
 
-exports.requestListener = requestListener;
-exports.treeListener = treeListener;
+exports.doGet = doGet;
+exports.doGetTree = doGetTree;
 exports.getLocalPath = getLocalPath;

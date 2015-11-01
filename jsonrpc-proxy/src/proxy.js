@@ -1,10 +1,20 @@
+/**
+ * プロキシ制御メインモジュール
+ */
 var TAG = "Proxy:"
 
 var Http = require('http');
 var Url = require('url');
 var Net = require('net');
 var Minimatch = require("minimatch").Minimatch
+var Done = require('./done');
 
+
+/**
+ * HTTPリスナ：HTTPリクエストを転送する。
+ * @param req
+ * @param res
+ */
 function transrate(req, res) {
 	console.log(TAG, "transrate", req.url);
 
@@ -15,13 +25,7 @@ function transrate(req, res) {
 	});
 	svrReq.on('error', function(err) {
 		console.error(TAG, "transrate", err);
-		try {
-			res.statusCode = 502;
-			res.write("502 Bad gateway");
-			res.end();
-		} catch (e) {
-			// igonre.
-		}
+		Done.error(res, 502, "502 Bad gateway");
 	});
 	req.pipe(svrReq);
 }
@@ -38,7 +42,13 @@ function createRequestOpts(req) {
 	return opts;
 }
 
-function connectListener(req, cSock, reqHeaders) {
+/**
+ * HTTPリスナ：CONNECT用。HTTPS用のトンネルを作成する。
+ * @param req
+ * @param cSock  クライアント側ソケット
+ * @param reqHeaders
+ */
+function doConnect(req, cSock, reqHeaders) {
 	console.log(TAG, "connect", req.url);
 
 	var _url = Url.parse('https://' + req.url);
@@ -60,5 +70,5 @@ function connectListener(req, cSock, reqHeaders) {
 
 exports.createRequestOpts = createRequestOpts;
 exports.transrate = transrate;
-exports.requestListener = transrate;
-exports.connectListener = connectListener;
+exports.doService = transrate;
+exports.doConnect = doConnect;

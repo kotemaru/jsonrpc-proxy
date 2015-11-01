@@ -96,7 +96,7 @@ function Editor() {
 		$.ajax({
 			type : "GET",
 			dataType : "json",
-			url : path + "?load=on",
+			url : path + "?cmd=load",
 			success : function(json) {
 				if (json.error) {
 					$("#tester").attr("src","/js_loader.html?"+path);

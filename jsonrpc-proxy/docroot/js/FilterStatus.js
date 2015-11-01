@@ -10,7 +10,7 @@ function FilterStatus() {
 		$.ajax({
 			type : "GET",
 			dataType : "json",
-			url : "/filter?status=on",
+			url : "/filter?cmd=status",
 			success : function(data) {
 				var $elem = $("#filterList");
 				$elem.html("");
@@ -29,7 +29,7 @@ function FilterStatus() {
 		$.ajax({
 			type : "GET",
 			dataType : "json",
-			url : "/filter?reset=on",
+			url : "/filter?cmd=reset",
 			success : function(data) {
 				Class.refresh();
 			},

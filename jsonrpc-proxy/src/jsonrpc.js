@@ -1,9 +1,27 @@
+/**
+ * JSONRPCをフックするモジュール
+ */
+
 var Http = require('http');
 var Proxy = require('./proxy')
+var Done = require('./done');
 
 var TAG = "JsonRpc:"
 
+/**
+ * JSONRPCをフックするHTTPリスナを生成して返す。
+ * <li>option
+ * <ul>
+ * <li>onRequest: function(req, res)  JSONRPCリクエストイベントリスナ
+ * <li>onResponse: function(req, res) JSONRPCレスポンスイベントリスナ
+ * </ul>
+ * <li> イベントリスナ関数の戻り値が true の場合、自力で応答を行った物とし継続処理を行わない。
+ * <li> JSONデータでなければ通常のProxy処理を行う。
+ * @param option
+ * @returns {Function} HTTPリスナ
+ */
 function createListener(option) {
+	var _this = {};
 
 	function proxyHandler(req, res) {
 		var ctype = req.headers['content-type'];
@@ -21,10 +39,6 @@ function createListener(option) {
 			req.body = JSON.parse(req.rawBody);
 			var isDone = false;
 			if (option.onRequest) {
-				var _this = {
-					proxyRequest : proxyRequest,
-					doResponse : doResponse
-				};
 				isDone = option.onRequest.call(_this, req, res);
 			}
 			if (!isDone) {
@@ -34,7 +48,7 @@ function createListener(option) {
 	}
 
 	function proxyRequest(req, res) {
-		//console.log(TAG, "doRequest ", JSON.stringify(req.body));
+		// console.log(TAG, "doRequest ", JSON.stringify(req.body));
 		var opts = Proxy.createRequestOpts(req);
 
 		var buff = new Buffer(JSON.stringify(req.body));
@@ -55,14 +69,10 @@ function createListener(option) {
 				res.body = JSON.parse(res.rawBody);
 				var isDone = false;
 				if (option.onResponse) {
-					var _this = {
-						proxyRequest : proxyRequest,
-						doResponse : doResponse
-					};
 					isDone = option.onResponse.call(_this, req, res);
 				}
 				if (!isDone) {
-					doResponse(req, res);
+					Done.json(res, res.body);
 				}
 			});
 		});
@@ -75,14 +85,6 @@ function createListener(option) {
 		return true;
 	}
 
-	function doResponse(req, res) {
-		//console.log(TAG, "doResponse ", JSON.stringify(res.body));
-		var buff = new Buffer(JSON.stringify(res.body));
-		res.setHeader("content-length", buff.length);
-		res.write(buff);
-		res.end();
-		return true;
-	}
 	return proxyHandler;
 }
 
