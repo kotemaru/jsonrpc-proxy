@@ -7,7 +7,7 @@ exports.newsList = {
 				newsArticleId : 10005,
 				newsArticleTitle : "おしらせ１",
 				nextLinkUrl : "http://www.google.co.jp/",
-				newsArticleLinkLabel : "会員ランクに応じてポイントが当たる!"
+				newsArticleLinkLabel : "テスト"
 			} ];
 		}
 	}

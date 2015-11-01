@@ -14,11 +14,36 @@ NodeJSをインストールして app.js を実行するだけです。
   * OSには依存しないはずです。
   * デフォルトのポートは 8080 です。
 
+localhost:8080 にアクセスして以下の画面になれば起動しています。
+
+<img src="./readme/top-page.png" width="250px"/>
+
+
 ## クライアント側設定
 
 ブラウザのプロキシにこのアプリを設定します。
 
-## フィルタ使い方
+自ホストのIPを確認。
+
+	> ipconfig
+	Windows IP 構成
+	イーサネット アダプター ローカル エリア接続:
+	   接続固有の DNS サフィックス . . . :
+	   IPv4 アドレス . . . . . . . . . . : 192.168.0.9
+	   サブネット マスク . . . . . . . . : 255.255.255.0
+	   デフォルト ゲートウェイ . . . . . : 192.168.0.1
+
+Androidの設定例:
+
+<img src="./readme/Android-setting-1.png" />
+
+
+
+## フィルタの使い方
+
+フィルタはJSONRPCの通信に割り込んでJSONのリクエスト・レスポンスを加工する機能です。<br>
+フィルタは JavaScript で記述します。書式は NodeJS のモジュール定義に準拠します。
+
 
 ### フィルタの定義
 
@@ -45,32 +70,45 @@ docroot/filter の配下に JS ファイルを置いて関数を定義します�
     * ターゲットサーバにリクエストを転送する前に呼ばれます。
   * onResponse  にレスポンスの差し替え関数を設定します。
     * ターゲットサーバからレスポンスを受けた後に呼ばれます。
+  * 変数 this は onRequest/onResponse のペアで共通です。
 
-### フィルタの適用
+### エディタ
 
-起動直後にはフィルタは適用されていません。<br>
-以下のURLを叩くとフィルタがファイル単位で適用されます。
+トップページの「フィルタ編集」をクリックします。
 
-	http://Proxyサーバ:8080/filter/test/test.js?load=on
+<img src="./readme/editor-page.png"/>
 
-フィルタをクリアする場合は以下のURLを叩きます。
-
-	http://Proxyサーバ:8080/filter?reset=on
-
-いずれもProxyサーバのトップページからリンクを辿れます。
+  * 左側のファイル一覧からファイルをクリックするとソースが読み込まれます。
+  * 編集後に <img src="./docroot/img/save.png" width="20px"/> をクリックすると保存・適用されます。
+  * 適用されたフィルタのメソッド名は「現在有効なフィルタ一覧」に表示されます。
+  * <img src="./docroot/img/clean.png" width="20px"/> をクリックするとフィルタはクリアされます。
 
 
 ### ログ
 
-フィルタ関数を経由した JSONPRC は以下のURLからログを確認できます。
+トップページの「フィルタログ」をクリックします。
 
-	http://Proxyサーバ:8080/logs/filter.html
+<img src="./readme/logger-page.png"/>
 
-Proxyサーバのトップページからリンクを辿れます。<br>
-ログはプロキシを再起動すると初期化されます。
+  * 上：フィルタ実行ログ一覧。
+  * 左：リクエストJSON
+  * 右：レスポンスJSON
+
+  * 有効になっているフィルタの実行ログがリアルタイムに追加されます。
+  * ログ一覧の項目をクリックすると対応する JSON が表示されます。(*1)
+
+(*1)chromeプラグイン JSONView を使っています。
+
+### JSONView の設定
+
+ここからプラグイン追加。
+
+  * https://chrome.google.com/webstore/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc
+
+オプション設定から 「Inject into frames」 を有効に設定。
+
+<img src="./readme/jsonview-1.png" style="border: 1px solid gray;" width="400px"/>　
+<img src="./readme/jsonview-2.png"/>
 
 
-# Tools
-
-Created with [Nodeclipse v0.5](https://github.com/Nodeclipse/nodeclipse-1)
- ([Eclipse Marketplace](http://marketplace.eclipse.org/content/nodeclipse), [site](http://www.nodeclipse.org))
+-----
